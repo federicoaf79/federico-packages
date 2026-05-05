@@ -1,0 +1,7 @@
+{
+  "name": "@federico/auth",
+  "version": "0.1.0",
+  "description": "Autenticación compartida del ecosistema Frey Hub (placeholder)",
+  "license": "UNLICENSED",
+  "private": true
+}

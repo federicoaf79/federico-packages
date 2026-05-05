@@ -1,0 +1,22 @@
+{
+  "name": "@federico/planb-client",
+  "version": "0.1.0",
+  "description": "SDK JavaScript para la API REST de Plan-B",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "test": "node --test"
+  },
+  "keywords": [
+    "plan-b",
+    "sdk",
+    "messaging"
+  ],
+  "license": "UNLICENSED"
+}

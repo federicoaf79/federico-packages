@@ -1,0 +1,13 @@
+{
+  "name": "federico-packages",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Monorepo de paquetes compartidos del ecosistema Frey Hub",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "npm run test --workspaces --if-present"
+  },
+  "license": "UNLICENSED"
+}
