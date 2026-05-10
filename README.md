@@ -1,54 +1,81 @@
 # federico-packages
 
-Monorepo de paquetes compartidos del ecosistema **Frey Hub**.
+## Qué es esto
 
-Este repo agrupa los módulos JavaScript reutilizables que consumen los proyectos del ecosistema:
+Monorepo de packages compartidos del ecosistema **Frey Hub**.
 
-- **OOHPlanner** — planificador de campañas OOH
-- **Plan-B** — plataforma de mensajería multicanal
-- **COMUNAS** — herramientas para gestión comunal
-- **Urban Tales** — narrativas urbanas
+**NO es donde viven las apps** — es la biblioteca que consumen.
 
-## Estructura
+## Estructura del ecosistema
+
+El ecosistema Frey Hub está formado por 4 repos independientes que **consumen** los packages publicados desde este monorepo:
+
+- `comunas-app` → repo propio
+- `oohplanner-app` → repo propio
+- `plan-b` → repo propio
+- `urban-tales` → repo propio
 
 ```
-packages/
-  planb-client/   # SDK JS para la API REST de Plan-B
-  auth/           # Autenticación compartida (placeholder)
-  ui/             # Componentes de UI compartidos (placeholder)
+                    ┌──────────────────────┐
+                    │  federico-packages   │
+                    │  (este monorepo)     │
+                    │                      │
+                    │  @federico/planb-client
+                    │  @federico/auth      │
+                    │  @federico/ui        │
+                    └──────────┬───────────┘
+                               │ instalan
+              ┌────────────┬───┴────┬────────────┐
+              ▼            ▼        ▼            ▼
+         comunas-app  oohplanner  plan-b   urban-tales
 ```
 
-## Uso
+## Packages disponibles
 
-Este repo usa [npm workspaces](https://docs.npmjs.com/cli/using-npm/workspaces). Para instalar todas las dependencias:
+| Package | Estado | Descripción |
+|---------|--------|-------------|
+| `@federico/planb-client` | activo | SDK para la API de Plan-B (`send`, `getStatus`) |
+| `@federico/auth` | placeholder | Auth compartido (pendiente) |
+| `@federico/ui` | placeholder | Componentes de UI compartidos (pendiente) |
+
+## Cómo instalar en un proyecto
+
+### Desde GitHub (MVP — hasta 3 proyectos)
 
 ```bash
-npm install
+npm install github:PlanB1205/federico-packages#workspace=@federico/planb-client
 ```
 
-Para ejecutar tests en todos los paquetes:
+### Desde npm privado (escala — 3+ municipios)
 
-```bash
-npm test
-```
+Publicar en **GitHub Packages** (~$4/mes) cuando haya 3+ municipios consumiendo los paquetes.
 
-## Paquetes
-
-### `@federico/planb-client`
-
-SDK JavaScript para consumir la API REST de Plan-B (`https://plan-b.lat/api/v1`).
+## Uso básico de `planb-client`
 
 ```js
-import { PlanBClient } from '@federico/planb-client';
+import { PlanBClient } from '@federico/planb-client'
 
-const client = new PlanBClient({ apiKey: process.env.PLANB_API_KEY });
-await client.send({ to: '+5491100000000', message: 'Hola', channel: 'whatsapp' });
+const client = new PlanBClient({
+  apiKey: process.env.PLANB_API_KEY,
+  baseUrl: 'https://plan-b.lat/api/v1'
+})
+
+await client.send({
+  to: '+543851234567',
+  message: 'Tu turno es mañana a las 09:30',
+  channel: 'auto',
+  metadata: { turno_id: 'T-0042', municipio: 'real-sayana' }
+})
 ```
 
-### `@federico/auth`
+## Cuándo conectar cada proyecto
 
-Placeholder — pendiente de implementación.
+1. **COMUNAS — día 12 del sprint** → instalar `planb-client` cuando Plan-B tenga su API REST lista.
+2. **Segundo municipio** → mover componentes reutilizables de COMUNAS a `@federico/comunas-core`.
 
-### `@federico/ui`
+## Roadmap de packages
 
-Placeholder — pendiente de implementación.
+- **v0.1.0** (actual) → `planb-client` básico
+- **v0.2.0** → auth compartido con Supabase
+- **v0.3.0** → componentes UI (`CalendarioSemanal`, `TurnoItem`, etc.)
+- **v1.0.0** → `comunas-core` (hooks, helpers, design system)
