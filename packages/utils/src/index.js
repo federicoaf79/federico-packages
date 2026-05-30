@@ -97,3 +97,16 @@ export function getInitials(name) {
     .join('')
     .toUpperCase();
 }
+
+// ── Re-export del módulo datetime ────────────────────────────────────────
+// También importable directo: import { longDateOf } from '@federico/utils/datetime'
+export {
+  ARG_TZ,
+  ARG_OFFSET,
+  timeOf,
+  dateOf,
+  dateTimeOf,
+  shortDateOf,
+  todayYMD,
+  longDateOf,
+} from './datetime.js';

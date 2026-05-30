@@ -15,3 +15,18 @@ const rows = await fetchAllPaginated(({ from, to }) =>
   supabase.from('mi_tabla').select('*').range(from, to)
 )
 ```
+
+## Cliente público (lecturas anónimas)
+
+Para portales públicos / landings que disparan muchas queries anónimas en
+paralelo. Evita el conflicto de locks de auth de supabase-js (lección de comunas).
+
+```js
+import { createPublicSupabaseClient } from '@federico/supabase'
+
+const supabasePublic = createPublicSupabaseClient({ url, key })
+// sin persistSession ni auth lock — queries directas al REST con anon key
+```
+
+El cliente principal acepta `storageKey` para namespacear la sesión y evitar
+colisiones si conviven dos clientes en el mismo origen.

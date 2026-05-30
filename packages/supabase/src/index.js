@@ -24,7 +24,7 @@ import { createClient } from '@supabase/supabase-js';
  * @param {object} [cfg.options] overrides para createClient
  * @returns cliente Supabase
  */
-export function createSupabaseClient({ url, key, options = {} } = {}) {
+export function createSupabaseClient({ url, key, options = {}, storageKey } = {}) {
   if (!url || !key) {
     throw new Error('createSupabaseClient: url y key son requeridos');
   }
@@ -33,6 +33,45 @@ export function createSupabaseClient({ url, key, options = {} } = {}) {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
+      // storageKey namespaceado evita colisiones si el mismo origen monta
+      // otro cliente Supabase (patrón tomado de comunas-app: 'comunas-auth').
+      ...(storageKey ? { storageKey } : {}),
+    },
+    ...options,
+  });
+}
+
+/**
+ * Cliente Supabase PÚBLICO — sin auth ni persistencia. Para lecturas anónimas
+ * (portales públicos, landing, etc.).
+ *
+ * Por qué existe (lección de comunas-app): el cliente principal persiste
+ * sesión y, aun con lock deshabilitado, supabase-js v2 chequea sesión en cada
+ * query. Al montar un portal que dispara muchas queries anónimas en paralelo,
+ * el lock interno se peleaba ("Lock was released because another request stole
+ * it") y algunas queries fallaban intermitentemente. Este cliente lo resuelve
+ * por construcción: persistSession/autoRefreshToken/detectSessionInUrl en false
+ * → GoTrueClient queda inerte, las queries van directo al REST con la anon key.
+ * Al no compartir storageKey con el principal, tampoco dispara el warning
+ * "Multiple GoTrueClient instances detected".
+ *
+ * REGLA: el cliente principal solo para flujos autenticados (admin, auth
+ * context); el público para todo lo que sea lectura sin sesión.
+ *
+ * @param {object} cfg { url, key, options? }
+ */
+export function createPublicSupabaseClient({ url, key, options = {} } = {}) {
+  if (!url || !key) {
+    throw new Error('createPublicSupabaseClient: url y key son requeridos');
+  }
+  return createClient(url, key, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+    global: {
+      headers: { 'x-client-info': 'frey-public' },
     },
     ...options,
   });
