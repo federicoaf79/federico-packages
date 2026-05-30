@@ -1,0 +1,17 @@
+{
+  "name": "@federico/email",
+  "version": "0.1.0",
+  "description": "Wrapper de envío de emails vía Supabase Edge Function (Resend) del ecosistema Frey Hub",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "test": "node --test"
+  },
+  "license": "UNLICENSED"
+}

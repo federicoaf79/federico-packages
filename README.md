@@ -4,78 +4,83 @@
 
 Monorepo de packages compartidos del ecosistema **Frey Hub**.
 
-**NO es donde viven las apps** — es la biblioteca que consumen.
+**NO es donde viven las apps** — es la biblioteca que consumen, más un catálogo
+de patrones de negocio para reusar soluciones al construir proyectos nuevos.
 
 ## Estructura del ecosistema
-
-El ecosistema Frey Hub está formado por 4 repos independientes que **consumen** los packages publicados desde este monorepo:
-
-- `comunas-app` → repo propio
-- `oohplanner-app` → repo propio
-- `plan-b` → repo propio
-- `urban-tales` → repo propio
 
 ```
                     ┌──────────────────────┐
                     │  federico-packages   │
                     │  (este monorepo)     │
                     │                      │
-                    │  @federico/planb-client
-                    │  @federico/auth      │
-                    │  @federico/ui        │
+                    │  packages/  → código importable
+                    │  docs/patterns/ → inteligencia documentada
                     └──────────┬───────────┘
-                               │ instalan
-              ┌────────────┬───┴────┬────────────┐
-              ▼            ▼        ▼            ▼
-         comunas-app  oohplanner  plan-b   urban-tales
+                               │ instalan / consultan
+        ┌────────────┬─────────┼─────────┬────────────┐
+        ▼            ▼         ▼         ▼            ▼
+   oohplanner     curex    comunas  urban-tales  (próximo proyecto)
+        │            │         │
+        └────────────┴─────────┴──▶ Plan-B (servicio de mensajería SMS/WA)
+                                    consumido vía @federico/planb-client
 ```
+
+**Apps del ecosistema** (consumen Frey Hub): oohplanner, comunas, curex, urban-tales.
+**Servicios que el ecosistema consume:** Plan-B — mensajería SMS/WhatsApp, vía
+`@federico/planb-client`. Plan-B vive en su propia cuenta (plan-b.lat); el SDK
+para hablarle vive acá porque lo usan las apps.
+
+## Dos tipos de reutilización
+
+1. **`/packages` — código que se importa.** Solo infraestructura genérica que
+   sirve igual a cualquier proyecto.
+2. **`/docs/patterns` — inteligencia de negocio documentada.** Soluciones
+   específicas de cada proyecto (comisiones, rentabilidad, pricing) descritas
+   como referencia, NO como código compartido. Ver
+   [docs/patterns/README.md](./docs/patterns/README.md) para el porqué.
 
 ## Packages disponibles
 
 | Package | Estado | Descripción |
 |---------|--------|-------------|
+| `@federico/utils` | activo | `cn`, `formatCurrency` (locale parametrizable), `formatDate`, `getInitials` |
+| `@federico/supabase` | activo | Factory de cliente + `fetchAllPaginated` (límite 1000 filas) |
+| `@federico/email` | activo | Envío vía Edge Function (Resend) |
+| `@federico/images` | activo | `validateArtwork` + `generateMockup` (perspectiva canvas) — browser-only |
 | `@federico/planb-client` | activo | SDK para la API de Plan-B (`send`, `getStatus`) |
 | `@federico/auth` | placeholder | Auth compartido (pendiente) |
 | `@federico/ui` | placeholder | Componentes de UI compartidos (pendiente) |
 
 ## Cómo instalar en un proyecto
 
-### Desde GitHub (MVP — hasta 3 proyectos)
+### Desde GitHub (MVP — pocos proyectos)
 
 ```bash
-npm install github:PlanB1205/federico-packages#workspace=@federico/planb-client
+npm install github:federicoaf79/federico-packages#workspace=@federico/utils
 ```
 
-### Desde npm privado (escala — 3+ municipios)
+### Desde npm privado (escala)
 
-Publicar en **GitHub Packages** (~$4/mes) cuando haya 3+ municipios consumiendo los paquetes.
+Publicar en **GitHub Packages** (~$4/mes) cuando varios proyectos consuman los
+paquetes y haga falta versionado real.
 
-## Uso básico de `planb-client`
+## Origen de los módulos
 
-```js
-import { PlanBClient } from '@federico/planb-client'
-
-const client = new PlanBClient({
-  apiKey: process.env.PLANB_API_KEY,
-  baseUrl: 'https://plan-b.lat/api/v1'
-})
-
-await client.send({
-  to: '+543851234567',
-  message: 'Tu turno es mañana a las 09:30',
-  channel: 'auto',
-  metadata: { turno_id: 'T-0042', municipio: 'real-sayana' }
-})
-```
-
-## Cuándo conectar cada proyecto
-
-1. **COMUNAS — día 12 del sprint** → instalar `planb-client` cuando Plan-B tenga su API REST lista.
-2. **Segundo municipio** → mover componentes reutilizables de COMUNAS a `@federico/comunas-core`.
+Los packages activos `utils`, `supabase`, `email` e `images` fueron extraídos y
+generalizados desde **oohplanner-app** (`src/lib/`), que es el proyecto más
+maduro del ecosistema. La lógica de dominio de OOH (comisiones, rentabilidad) NO
+se extrajo: vive documentada en `docs/patterns`.
 
 ## Roadmap de packages
 
-- **v0.1.0** (actual) → `planb-client` básico
-- **v0.2.0** → auth compartido con Supabase
-- **v0.3.0** → componentes UI (`CalendarioSemanal`, `TurnoItem`, etc.)
-- **v1.0.0** → `comunas-core` (hooks, helpers, design system)
+- **v0.1.0** (actual) → utils, supabase, email, images, planb-client
+- **v0.2.0** → `@federico/auth` (Supabase + roles, fuente: oohplanner guards/context + curex login)
+- **v0.3.0** → `@federico/ui` (design system; fuente: oohplanner components/ui + comunas)
+- **v0.4.0** → `@federico/pdf` (jsPDF + html2canvas; fuente: oohplanner + curex)
+
+## Próximos consumidores
+
+1. **oohplanner-app** → migrar sus `lib/` para que importen desde acá en vez de local.
+2. **curex** → adoptar `@federico/supabase` (fetchAllPaginated ya lo usa inline).
+3. **comunas** → cuando se apruebe, nace consumiendo Frey Hub desde el día 1.

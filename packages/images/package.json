@@ -1,0 +1,19 @@
+{
+  "name": "@federico/images",
+  "version": "0.1.0",
+  "description": "Validación de imágenes y composición en perspectiva (canvas) del ecosistema Frey Hub",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./validate": "./src/validateArtwork.js",
+    "./mockup": "./src/generateMockup.js"
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "test": "node --test"
+  },
+  "license": "UNLICENSED"
+}
