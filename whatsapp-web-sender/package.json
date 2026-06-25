@@ -1,0 +1,26 @@
+{
+  "name": "@federico/whatsapp-web-sender",
+  "version": "1.0.0",
+  "description": "Módulo reutilizable para enviar mensajes y archivos por WhatsApp Web via Puppeteer. Ecosistema Tulkas.",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "qr": "node src/qr.js"
+  },
+  "dependencies": {
+    "puppeteer": "^22.0.0",
+    "express": "^4.18.0",
+    "cors": "^2.8.5",
+    "multer": "^1.4.5",
+    "qrcode-terminal": "^0.12.0",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  },
+  "keywords": ["whatsapp", "puppeteer", "tulkas", "sender"],
+  "author": "Federico Aram Freysselinard <federico@tulkasmedia.com>",
+  "license": "MIT"
+}
